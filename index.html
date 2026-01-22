@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Playbook – Budai Farkasok FU18</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="header-row">
+        <div class="h-left">
+          <div class="h-title">Playbook</div>
+        </div>
+
+        <div class="h-right">
+          <div class="controls">
+            <label class="control">
+              <span class="control-label">Keresés</span>
+              <input id="q" type="search" placeholder="Név / védekezés / szituáció / leírás..." />
+            </label>
+
+            <label class="control">
+              <span class="control-label">Védekezés</span>
+              <select id="fDefense">
+                <option value="">Mind</option>
+              </select>
+            </label>
+
+            <label class="control">
+              <span class="control-label">Szituáció</span>
+              <select id="fSituation">
+                <option value="">Mind</option>
+              </select>
+            </label>
+
+            <label class="control">
+              <span class="control-label">Játékrész</span>
+              <select id="fPhase">
+                <option value="">Mind</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="team">Budai Farkasok FU18</div>
+    </header>
+
+    <main class="content">
+      <div id="list" class="list"></div>
+      <div id="empty" class="empty" hidden>Nincs találat.</div>
+    </main>
+
+    <footer class="footer">
+      <span>Ingyenes statikus oldal · Szerkesztés: <code>assets/data/plays.json</code></span>
+    </footer>
+  </div>
+
+  <template id="rowTpl">
+    <section class="row">
+      <div class="col col-left">
+        <div class="col-head">
+          <div class="col-title name">Mozgás neve</div>
+          <div class="chips"></div>
+        </div>
+        <div class="media-box">
+          <video class="media" controls playsinline preload="metadata"></video>
+          <img class="media-img" alt="" />
+        </div>
+      </div>
+
+      <div class="col col-mid">
+        <div class="col-head"><div class="col-title">Védekezési forma</div></div>
+        <div class="mid-text defense"></div>
+      </div>
+
+      <div class="col col-right">
+        <div class="col-head"><div class="col-title">Leírás</div></div>
+        <div class="desc"></div>
+      </div>
+    </section>
+  </template>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
