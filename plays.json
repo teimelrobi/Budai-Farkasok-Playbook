@@ -1,0 +1,20 @@
+[
+  {
+    "id": "01",
+    "name": "Fatek",
+    "defense": "6:0",
+    "situation": "6:6",
+    "phase": "Támadás",
+    "media": "assets/media/01_fatek.mp4",
+    "description": "Kulcspontok:\n- Kezdés: KB\n- Beálló 2-3 közé\n- Ha kilép a 3-as: visszajátszás"
+  },
+  {
+    "id": "02",
+    "name": "0 Bal alap",
+    "defense": "6:0",
+    "situation": "Emberelőny",
+    "phase": "Támadás",
+    "media": "assets/media/02_0 bal_alap.mp4",
+    "description": ""
+  }
+]
