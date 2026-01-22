@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Szerkesztő – Playbook</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <link rel="stylesheet" href="assets/editor.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="header-row">
+        <div class="h-left">
+          <div class="h-title">Szerkesztő</div>
+          <div class="small-muted">Gyors felvitel név / kategóriák / leírás. Export → plays.json.</div>
+        </div>
+
+        <div class="h-right">
+          <div class="editor-actions">
+            <button id="add" class="btn">+ Új figura</button>
+            <button id="export" class="btn primary">Export (plays.json)</button>
+            <label class="btn ghost file">
+              Import (plays.json)
+              <input id="import" type="file" accept="application/json" />
+            </label>
+            <button id="reset" class="btn ghost">Visszaállítás</button>
+          </div>
+          <div class="small-muted" style="text-align:right">
+            <a href="index.html">← Vissza a playbookhoz</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="editor">
+      <div class="tip">
+        <b>Workflow:</b> itt szerkesztesz → <b>Export</b> → a letöltött fájlt feltöltöd GitHubra az <code>assets/data/plays.json</code> helyére.
+      </div>
+
+      <div class="table-wrap">
+        <table class="tbl" id="tbl">
+          <thead>
+            <tr>
+              <th style="width:70px">ID</th>
+              <th style="min-width:220px">Név</th>
+              <th style="width:90px">Véd.</th>
+              <th style="width:140px">Szituáció</th>
+              <th style="width:120px">Játékrész</th>
+              <th style="min-width:260px">Media (útvonal)</th>
+              <th style="min-width:360px">Leírás</th>
+              <th style="width:140px">Művelet</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>A szerkesztő automatikusan ment a böngészőben (LocalStorage). Ha gépet váltasz, exportáld a JSON-t.</span>
+    </footer>
+  </div>
+
+  <script src="assets/editor.js"></script>
+</body>
+</html>

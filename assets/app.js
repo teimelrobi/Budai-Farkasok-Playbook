@@ -1,27 +1,12 @@
 async function loadPlays(){
-  // Ingyenes host (GitHub Pages/Netlify/Cloudflare Pages) alatt működik.
   const res = await fetch('assets/data/plays.json', { cache: 'no-store' });
   return await res.json();
 }
-
-function uniq(arr){
-  return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'hu'));
-}
-
+function uniq(arr){ return [...new Set(arr.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'hu')); }
 function addOptions(selectEl, values){
-  values.forEach(v=>{
-    const o=document.createElement('option');
-    o.value=v; o.textContent=v;
-    selectEl.appendChild(o);
-  });
+  values.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; selectEl.appendChild(o); });
 }
-
-function chip(text){
-  const s=document.createElement('span');
-  s.className='chip';
-  s.textContent=text;
-  return s;
-}
+function chip(text){ const s=document.createElement('span'); s.className='chip'; s.textContent=text; return s; }
 
 function renderRow(play){
   const tpl = document.getElementById('rowTpl');
@@ -32,27 +17,21 @@ function renderRow(play){
   node.querySelector('.desc').textContent = play.description || '';
 
   const chipsWrap = node.querySelector('.chips');
-  const chipVals = [play.phase, play.situation].filter(Boolean);
-  chipVals.forEach(v=>chipsWrap.appendChild(chip(v)));
+  [play.phase, play.situation].filter(Boolean).forEach(v=>chipsWrap.appendChild(chip(v)));
 
   const video = node.querySelector('video.media');
   const img = node.querySelector('img.media-img');
-
   const src = play.media || '';
+
   if(src.match(/\.(mp4|webm|ogg)$/i)){
-    video.src = src;
-    video.style.display = 'block';
-    img.style.display = 'none';
+    video.src = src; video.style.display = 'block'; img.style.display = 'none';
   }else if(src){
-    img.src = src;
-    img.style.display = 'block';
-    video.style.display = 'none';
+    img.src = src; img.style.display = 'block'; video.style.display = 'none';
   }else{
     const box = node.querySelector('.media-box');
     box.textContent = 'Ide kerül a gif / videó';
     box.style.color = '#6b7280';
   }
-
   return node;
 }
 
@@ -62,9 +41,7 @@ function matches(play, q, fDefense, fSituation, fPhase){
   if(fPhase && (play.phase||'') !== fPhase) return false;
 
   if(!q) return true;
-  const hay = [
-    play.name, play.defense, play.situation, play.phase, play.description
-  ].filter(Boolean).join(' ').toLowerCase();
+  const hay = [play.name, play.defense, play.situation, play.phase, play.description].filter(Boolean).join(' ').toLowerCase();
   return hay.includes(q.toLowerCase());
 }
 
@@ -98,5 +75,5 @@ function matches(play, q, fDefense, fSituation, fPhase){
 })().catch(err=>{
   console.error(err);
   document.getElementById('list').innerHTML =
-    '<div class="empty">Hiba a betöltésnél. Ellenőrizd, hogy az <b>assets/data/plays.json</b> megvan-e (és hogy az oldal hostolva van-e, nem file:// megnyitva).</div>';
+    '<div class="empty">Hiba a betöltésnél. Ellenőrizd, hogy az <b>assets/data/plays.json</b> megvan-e.</div>';
 });

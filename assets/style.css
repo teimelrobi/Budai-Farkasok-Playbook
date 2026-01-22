@@ -28,6 +28,7 @@ body{
   gap:12px;
 }
 .h-title{ font-weight:700; font-size:18px; }
+.small-muted{ color:var(--muted); font-size:12px; margin-top:4px; }
 
 .team{
   text-align:center;
@@ -147,7 +148,18 @@ body{
   margin-top:10px;
   color:var(--muted);
   font-size:12px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
 }
+.footer-link{
+  color:#1f2937;
+  font-weight:700;
+  text-decoration:none;
+  border-bottom:1px solid #9ca3af;
+}
+.footer-link:hover{ border-bottom-color:#111827; }
 
 @media (max-width: 900px){
   .row{ grid-template-columns: 1fr; }
