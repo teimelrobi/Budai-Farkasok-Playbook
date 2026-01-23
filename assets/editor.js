@@ -190,5 +190,5 @@ function autoSave(){
 
 })().catch(err=>{
   console.error(err);
-  alert('Hiba a szerkesztő betöltésénél. Nyisd meg F12 konzolt.');
+  alert('Hiba a szerkesztő betöltésénél.');
 });
