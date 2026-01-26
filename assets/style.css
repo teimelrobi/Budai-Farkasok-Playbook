@@ -243,10 +243,10 @@ body{
 }
 
 .logo{
-  height:40px;
+  height:60px;
   width:auto;
-  padding:6px;
-  border-radius:12px;
+  padding:8px;
+  border-radius:14px;
   background:#ffffff;              /* a logód fehér háttere miatt ez jól működik */
   border:1px solid rgba(148,163,184,.25);
   box-shadow: 0 8px 20px rgba(0,0,0,.25);
