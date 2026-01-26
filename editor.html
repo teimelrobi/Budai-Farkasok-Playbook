@@ -20,12 +20,15 @@
           <div class="editor-actions">
             <button id="add" class="btn">+ Új figura</button>
             <button id="export" class="btn primary">Export (plays.json)</button>
+
             <label class="btn ghost file">
               Import (plays.json)
               <input id="import" type="file" accept="application/json" />
             </label>
+
             <button id="reset" class="btn ghost">Visszaállítás</button>
           </div>
+
           <div class="small-muted" style="text-align:right">
             <a href="index.html">← Vissza a playbookhoz</a>
           </div>
@@ -35,7 +38,8 @@
 
     <main class="editor">
       <div class="tip">
-        <b>Workflow:</b> itt szerkesztesz → <b>Export</b> → a letöltött fájlt feltöltöd GitHubra az <code>assets/data/plays.json</code> helyére.
+        <b>Workflow:</b> itt szerkesztesz → <b>Export</b> → a letöltött fájlt feltöltöd GitHubra az
+        <code>assets/data/plays.json</code> helyére.
       </div>
 
       <div class="table-wrap">
@@ -44,11 +48,11 @@
             <tr>
               <th style="width:70px">ID</th>
               <th style="min-width:220px">Név</th>
-              <th style="width:90px">Véd.</th>
-              <th style="width:220px">Szituáció</th>
+              <th style="width:120px">Véd.</th>
+              <th style="width:240px">Szituáció</th>
               <th style="min-width:260px">Media (útvonal)</th>
               <th style="min-width:360px">Leírás</th>
-              <th style="width:140px">Művelet</th>
+              <th style="width:160px">Művelet</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
