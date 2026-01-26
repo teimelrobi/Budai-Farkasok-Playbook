@@ -8,49 +8,56 @@
 </head>
 <body>
   <div class="page">
-    <header class="header">
-      <div class="header-row">
-        <<div class="h-left">
-  <div class="brand">
-    <img class="logo" src="assets/logo.png" alt="Budai Farkasok" />
-    <div class="h-title">Playbook</div>
-  </div>
-</div>
+   <header class="header">
+  <div class="header-grid">
 
+    <!-- BAL OSZLOP: LOGÓ -->
+    <div class="brand-col">
+      <img class="logo-large" src="assets/logo.png" alt="Budai Farkasok" />
+    </div>
 
-        <div class="h-right">
-          <div class="controls">
-            <label class="control">
-              <span class="control-label">Keresés</span>
-              <input id="q" type="search" placeholder="Név / védekezés / szituáció / leírás..." />
-            </label>
+    <!-- KÖZÉP OSZLOP: CÍM -->
+    <div class="title-col">
+      <div class="playbook-title">PLAYBOOK</div>
+      <div class="team-title">Budai Farkasok FU18</div>
+    </div>
 
-            <label class="control">
-              <span class="control-label">Védekezés</span>
-              <select id="fDefense">
-                <option value="">Mind</option>
-              </select>
-            </label>
+    <!-- JOBB OSZLOP: SZŰRŐK + KERESŐ (kereső alul) -->
+    <div class="filters-col">
+      <div class="filters-top">
+        <label class="control inline">
+          <span class="control-label">Védekezés</span>
+          <select id="fDefense">
+            <option value="">Mind</option>
+          </select>
+        </label>
 
-            <label class="control">
-              <span class="control-label">Szituáció</span>
-              <select id="fSituation">
-                <option value="">Mind</option>
-              </select>
-            </label>
+        <label class="control inline">
+          <span class="control-label">Szituáció</span>
+          <select id="fSituation">
+            <option value="">Mind</option>
+          </select>
+        </label>
 
-            <label class="control">
-              <span class="control-label">Játékrész</span>
-              <select id="fPhase">
-                <option value="">Mind</option>
-              </select>
-            </label>
-          </div>
-        </div>
+        <!-- Ha nálad még van játékrész szűrő -->
+        <label class="control inline">
+          <span class="control-label">Játékrész</span>
+          <select id="fPhase">
+            <option value="">Mind</option>
+          </select>
+        </label>
       </div>
 
-      <div class="team">Budai Farkasok FU18</div>
-    </header>
+      <div class="filters-bottom">
+        <label class="control">
+          <span class="control-label">Keresés</span>
+          <input id="q" type="search" placeholder="Név / védekezés / szituáció / leírás..." />
+        </label>
+      </div>
+    </div>
+
+  </div>
+</header>
 
     <main class="content">
       <div id="list" class="list"></div>
