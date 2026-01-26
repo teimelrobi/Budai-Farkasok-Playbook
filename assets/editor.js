@@ -1,226 +1,306 @@
-/*
-  Lightweight in-browser editor for plays.json
-  - Stores drafts in LocalStorage
-  - If LocalStorage empty, auto-loads assets/data/plays.json
-*/
+/* Playbook Editor – robust, ID-aligned with editor.html */
 
-const LS_KEY = 'bf_playbook_plays_v1';
-const DATA_URL = 'assets/data/plays.json';
+const DEFAULT_SITUATIONS = [
+  "Támadás",
+  "Védekezés",
+  "Lerohanás",
+  "Visszarendeződés",
+  "Létszámfölény",
+  "Létszámhátrány"
+];
 
-const DEF = {
-  ved: ['6:0','5:1'],
-  szitu: ['Támadás','Védekezés','Lerohanás','Visszarendeződés','Létszámfölény','Létszámhátrány']
-};
+const DEFAULT_DEFENSES = [
+  "",     // üres = nincs / mind
+  "6:0",
+  "5:1"
+];
 
-let plays = [];
+const STORE_KEY = "playbook_plays";
 
-function $(sel){ return document.querySelector(sel); }
+function byId(id) { return document.getElementById(id); }
 
-function safeParse(json){
-  try{ return JSON.parse(json); }catch{ return null; }
+function safeParseJson(str, fallback) {
+  try { return JSON.parse(str); } catch { return fallback; }
 }
 
-function normalizePlay(p, idx){
-  const id = (p && (p.id ?? p.ID ?? p.Id)) ?? (idx+1);
+function loadFromStorage() {
+  const raw = localStorage.getItem(STORE_KEY);
+  if (!raw) return null;
+  const data = safeParseJson(raw, null);
+  if (!data || !Array.isArray(data)) return null;
+  return data;
+}
+
+function saveToStorage(plays) {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(plays));
+  } catch (e) {
+    console.error("LocalStorage save error:", e);
+    alert("Nem sikerült menteni (LocalStorage hiba).");
+  }
+}
+
+function clearStorage() {
+  localStorage.removeItem(STORE_KEY);
+}
+
+async function loadFromSiteJson() {
+  // a playbook adatfájl helye
+  const res = await fetch("assets/data/plays.json", { cache: "no-store" });
+  if (!res.ok) throw new Error("Nem találom: assets/data/plays.json");
+  const data = await res.json();
+  if (!Array.isArray(data)) throw new Error("plays.json nem tömb (Array).");
+  return data;
+}
+
+function normalizePlay(p, idx) {
+  const id = (p && p.id != null && String(p.id).trim() !== "") ? String(p.id) : String(idx + 1);
   return {
     id,
-    name: (p?.name ?? p?.név ?? p?.nev ?? '').toString(),
-    vedekezes: (p?.vedekezes ?? p?.véd ?? p?.ved ?? '').toString(),
-    szituacio: (p?.szituacio ?? p?.szituáció ?? '').toString(),
-    media: (p?.media ?? p?.útvonal ?? p?.utvonal ?? '').toString(),
-    description: (p?.description ?? p?.leírás ?? p?.leiras ?? '').toString(),
+    name: (p && p.name) ? String(p.name) : "",
+    defense: (p && p.defense) ? String(p.defense) : "",
+    situation: (p && p.situation) ? String(p.situation) : "",
+    media: (p && p.media) ? String(p.media) : "",
+    description: (p && p.description) ? String(p.description) : ""
   };
 }
 
-function loadFromLocalStorage(){
-  const raw = localStorage.getItem(LS_KEY);
-  if(!raw) return null;
-  const parsed = safeParse(raw);
-  if(!parsed) return null;
-  if(!Array.isArray(parsed)) return null;
-  return parsed.map(normalizePlay);
+function makeEl(tag, cls, html) {
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (html != null) el.innerHTML = html;
+  return el;
 }
 
-async function loadFromFile(){
-  const res = await fetch(DATA_URL, { cache: 'no-store' });
-  if(!res.ok) throw new Error('Fetch failed: '+res.status);
-  const parsed = await res.json();
-  if(!Array.isArray(parsed)) throw new Error('plays.json is not an array');
-  return parsed.map(normalizePlay);
+function makeSelect(options, value) {
+  const sel = document.createElement("select");
+  sel.className = "input";
+  options.forEach(opt => {
+    const o = document.createElement("option");
+    o.value = opt;
+    o.textContent = opt === "" ? "—" : opt;
+    sel.appendChild(o);
+  });
+  sel.value = options.includes(value) ? value : (options[0] ?? "");
+  return sel;
 }
 
-function save(){
-  localStorage.setItem(LS_KEY, JSON.stringify(plays, null, 2));
+function makeInput(value, placeholder = "") {
+  const inp = document.createElement("input");
+  inp.className = "input";
+  inp.type = "text";
+  inp.value = value ?? "";
+  inp.placeholder = placeholder;
+  return inp;
 }
 
-function newEmpty(){
-  const nextId = plays.length ? Math.max(...plays.map(p=>Number(p.id)||0)) + 1 : 1;
-  return { id: nextId, name:'', vedekezes:'', szituacio:'', media:'assets/media/', description:'' };
+function makeTextarea(value, placeholder = "") {
+  const ta = document.createElement("textarea");
+  ta.className = "input textarea";
+  ta.rows = 4;
+  ta.value = value ?? "";
+  ta.placeholder = placeholder;
+  return ta;
 }
 
-function render(){
-  const tbody = $('#tbody');
-  tbody.innerHTML = '';
+let plays = [];
+let hasBootstrapped = false;
 
-  plays.forEach((p, i)=>{
-    const tr = document.createElement('tr');
+function render() {
+  const tbody = byId("tbody");
+  tbody.innerHTML = "";
 
-    tr.innerHTML = `
-      <td class="small"><span class="badge">${escapeHtml(String(p.id))}</span></td>
-      <td><input type="text" data-k="name" data-i="${i}" value="${escapeAttr(p.name)}" placeholder="Pl. 0 Bal"/></td>
-      <td style="min-width:120px">
-        <select data-k="vedekezes" data-i="${i}">
-          <option value="">—</option>
-          ${DEF.ved.map(v=>`<option ${p.vedekezes===v?'selected':''} value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('')}
-        </select>
-      </td>
-      <td style="min-width:170px">
-        <select data-k="szituacio" data-i="${i}">
-          <option value="">—</option>
-          ${DEF.szitu.map(s=>`<option ${p.szituacio===s?'selected':''} value="${escapeAttr(s)}">${escapeHtml(s)}</option>`).join('')}
-        </select>
-      </td>
-      <td>
-        <input class="mediaPath" type="text" data-k="media" data-i="${i}" value="${escapeAttr(p.media)}" placeholder="assets/media/01_valami.mp4"/>
-      </td>
-      <td>
-        <textarea data-k="description" data-i="${i}" placeholder="Kulcspontok...">${escapeHtml(p.description)}</textarea>
-      </td>
-      <td>
-        <div class="rowActions">
-          <button class="btn" data-act="dup" data-i="${i}">Duplikál</button>
-          <button class="btn btnDanger" data-act="del" data-i="${i}">Töröl</button>
-        </div>
-      </td>
-    `;
+  plays.forEach((p, i) => {
+    const tr = document.createElement("tr");
+
+    // ID
+    const tdId = document.createElement("td");
+    const idInput = makeInput(p.id, "pl. 01");
+    idInput.style.width = "90px";
+    idInput.addEventListener("input", () => {
+      plays[i].id = idInput.value.trim();
+      saveToStorage(plays);
+    });
+    tdId.appendChild(idInput);
+    tr.appendChild(tdId);
+
+    // Név
+    const tdName = document.createElement("td");
+    const nameInput = makeInput(p.name, "Mozgás neve");
+    nameInput.addEventListener("input", () => {
+      plays[i].name = nameInput.value;
+      saveToStorage(plays);
+    });
+    tdName.appendChild(nameInput);
+    tr.appendChild(tdName);
+
+    // Véd.
+    const tdDef = document.createElement("td");
+    const defSel = makeSelect(DEFAULT_DEFENSES, p.defense);
+    defSel.addEventListener("change", () => {
+      plays[i].defense = defSel.value;
+      saveToStorage(plays);
+    });
+    tdDef.appendChild(defSel);
+    tr.appendChild(tdDef);
+
+    // Szituáció
+    const tdSit = document.createElement("td");
+    const sitSel = makeSelect(["", ...DEFAULT_SITUATIONS], p.situation);
+    sitSel.addEventListener("change", () => {
+      plays[i].situation = sitSel.value;
+      saveToStorage(plays);
+    });
+    tdSit.appendChild(sitSel);
+    tr.appendChild(tdSit);
+
+    // Media
+    const tdMedia = document.createElement("td");
+    const mediaInput = makeInput(p.media, "assets/media/01_video.mp4");
+    mediaInput.addEventListener("input", () => {
+      plays[i].media = mediaInput.value;
+      saveToStorage(plays);
+    });
+    tdMedia.appendChild(mediaInput);
+    tr.appendChild(tdMedia);
+
+    // Leírás
+    const tdDesc = document.createElement("td");
+    const descTa = makeTextarea(p.description, "Kulcspontok…");
+    descTa.addEventListener("input", () => {
+      plays[i].description = descTa.value;
+      saveToStorage(plays);
+    });
+    tdDesc.appendChild(descTa);
+    tr.appendChild(tdDesc);
+
+    // Művelet
+    const tdOps = document.createElement("td");
+
+    const btnDup = makeEl("button", "btn mini", "Duplikál");
+    btnDup.addEventListener("click", () => {
+      const copy = { ...plays[i] };
+      // új ID-t ajánlunk (ne ütközzön)
+      copy.id = (copy.id ? (copy.id + "_copy") : String(Date.now()));
+      plays.splice(i + 1, 0, copy);
+      saveToStorage(plays);
+      render();
+    });
+
+    const btnDel = makeEl("button", "btn mini danger", "Töröl");
+    btnDel.addEventListener("click", () => {
+      if (!confirm("Biztos törlöd ezt a figurát?")) return;
+      plays.splice(i, 1);
+      saveToStorage(plays);
+      render();
+    });
+
+    tdOps.appendChild(btnDup);
+    tdOps.appendChild(document.createTextNode(" "));
+    tdOps.appendChild(btnDel);
+
+    tr.appendChild(tdOps);
 
     tbody.appendChild(tr);
   });
 }
 
-function exportJson(){
-  const blob = new Blob([JSON.stringify(plays, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'plays.json';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
-}
-
-function importJson(file){
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    const parsed = safeParse(String(reader.result));
-    if(!Array.isArray(parsed)){
-      alert('Hiba: a fájl nem JSON tömb (array).');
-      return;
-    }
-    plays = parsed.map(normalizePlay);
-    save();
-    render();
-  };
-  reader.readAsText(file);
-}
-
-function resetAll(){
-  if(!confirm('Biztosan visszaállítod az aktuális böngészőben tárolt adatokat?')) return;
-  localStorage.removeItem(LS_KEY);
-  plays = [];
-  boot();
-}
-
-function escapeHtml(s){
-  return s
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'",'&#39;');
-}
-function escapeAttr(s){
-  return escapeHtml(s).replaceAll('\n','&#10;');
-}
-
-function attachHandlers(){
-  // live edits
-  document.addEventListener('input', (e)=>{
-    const t = e.target;
-    const k = t?.dataset?.k;
-    const i = Number(t?.dataset?.i);
-    if(!k || Number.isNaN(i)) return;
-    plays[i][k] = t.value;
-    save();
-  });
-
-  // actions
-  document.addEventListener('click', (e)=>{
-    const b = e.target.closest('button');
-    if(!b) return;
-    const act = b.dataset.act;
-    const i = Number(b.dataset.i);
-    if(!act || Number.isNaN(i)) return;
-
-    if(act==='dup'){
-      const copy = {...plays[i], id: (Math.max(...plays.map(p=>Number(p.id)||0)) + 1)};
-      plays.splice(i+1, 0, copy);
-      save();
-      render();
-    }
-    if(act==='del'){
-      if(!confirm('Törlöd ezt a sort?')) return;
-      plays.splice(i,1);
-      save();
-      render();
-    }
-  });
-
-  $('#btnAdd').addEventListener('click', ()=>{
-    plays.unshift(newEmpty());
-    save();
-    render();
-    window.scrollTo({top:0, behavior:'smooth'});
-  });
-
-  $('#btnExport').addEventListener('click', exportJson);
-
-  const file = $('#fileImport');
-  const btnImport = $('#btnImport');
-  file.addEventListener('change', ()=>{
-    btnImport.disabled = !file.files || !file.files[0];
-  });
-  btnImport.addEventListener('click', ()=>{
-    if(!file.files || !file.files[0]) return;
-    importJson(file.files[0]);
-  });
-
-  $('#btnReset').addEventListener('click', resetAll);
-}
-
-async function boot(){
-  // 1) try LocalStorage
-  const fromLS = loadFromLocalStorage();
-  if(fromLS && fromLS.length){
-    plays = fromLS;
+async function bootstrap() {
+  // 1) próbáljuk LocalStorage-ból
+  const fromStore = loadFromStorage();
+  if (fromStore) {
+    plays = fromStore.map(normalizePlay);
+    hasBootstrapped = true;
     render();
     return;
   }
 
-  // 2) try plays.json
-  try{
-    const fromFile = await loadFromFile();
-    plays = fromFile;
-    save();
+  // 2) ha nincs, akkor a site plays.json-ból
+  try {
+    const fromFile = await loadFromSiteJson();
+    plays = fromFile.map(normalizePlay);
+    saveToStorage(plays);
+    hasBootstrapped = true;
     render();
-  }catch(err){
-    // 3) empty fallback
+  } catch (e) {
+    console.warn(e);
     plays = [];
+    saveToStorage(plays);
+    hasBootstrapped = true;
     render();
-    console.warn('Could not load plays.json for editor:', err);
   }
 }
 
-// init
-attachHandlers();
-boot();
+function exportJson() {
+  const clean = plays.map((p, idx) => normalizePlay(p, idx));
+  const blob = new Blob([JSON.stringify(clean, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "plays.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+
+function importJson(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const data = safeParseJson(reader.result, null);
+    if (!Array.isArray(data)) {
+      alert("Hibás JSON: nem tömb (Array).");
+      return;
+    }
+    plays = data.map(normalizePlay);
+    saveToStorage(plays);
+    render();
+    alert("Import kész.");
+  };
+  reader.readAsText(file);
+}
+
+function addNewPlay() {
+  const nextId = String(plays.length + 1);
+  plays.unshift({
+    id: nextId,
+    name: "",
+    defense: "",
+    situation: "",
+    media: "",
+    description: ""
+  });
+  saveToStorage(plays);
+  render();
+  // fókusz az első sor név mezőre
+  setTimeout(() => {
+    const firstNameInput = document.querySelector("#tbody tr:first-child td:nth-child(2) input");
+    if (firstNameInput) firstNameInput.focus();
+  }, 50);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Gombok (ID-k a editor.html alapján!)
+  const btnAdd = byId("add");
+  const btnExport = byId("export");
+  const fileImport = byId("import");
+  const btnReset = byId("reset");
+
+  btnAdd.addEventListener("click", () => addNewPlay());
+  btnExport.addEventListener("click", () => exportJson());
+
+  fileImport.addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) importJson(f);
+    e.target.value = ""; // reset
+  });
+
+  btnReset.addEventListener("click", async () => {
+    if (!confirm("Visszaállítod a szerkesztőt az oldalon lévő plays.json alapján?")) return;
+    clearStorage();
+    plays = [];
+    render();
+    await bootstrap();
+  });
+
+  await bootstrap();
+});
