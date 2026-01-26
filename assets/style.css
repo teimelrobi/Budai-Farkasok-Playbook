@@ -1,14 +1,12 @@
 :root{
   --bg:#0b1220;
   --panel:#0f172a;
-  --card:#0b1220;
-  --card2:#0f172a;
   --border: rgba(148,163,184,.18);
   --text:#e5e7eb;
   --muted:#9ca3af;
 
-  --accent:#60a5fa;      /* kék */
-  --accent2:#a78bfa;     /* lila */
+  --accent:#60a5fa;
+  --accent2:#a78bfa;
   --chipbg: rgba(96,165,250,.12);
   --chipbd: rgba(96,165,250,.25);
 
@@ -32,9 +30,8 @@ body{
 .page{ max-width: 1180px; margin:0 auto; padding: 18px 14px 34px; }
 
 /* =========================
-   HEADER (3 oszlop desktopon)
-   Bal: Logo | Közép: PLAYBOOK + csapat | Jobb: szűrők + kereső
-   Mobilon egymás alá
+   HEADER – 3 oszlop desktopon
+   Bal: logo | Közép: cím | Jobb: szűrők + kereső
 ========================= */
 .header{
   border:1px solid var(--border);
@@ -45,25 +42,27 @@ body{
   box-shadow: var(--shadow);
 }
 
-/* Ezt használjuk az új 3 oszlopos fejléchez */
 .header-grid{
   display:grid;
-  grid-template-columns: 1.55fr 0.8fr 1.55fr; /* mint a row: bal/közép/jobb */
+  grid-template-columns: 1.55fr 0.8fr 1.55fr;
   gap:14px;
   align-items:center;
 }
 
-/* Bal oszlop */
+/* BAL oszlop */
 .brand-col{
   display:flex;
   align-items:center;
   justify-content:flex-start;
+  gap:10px;
 }
 
-/* LOGÓ: NE legyen 100% széles (ettől lett óriási). */
-.logo-large{
-  height: 92px;     /* állítsd 84–110 között ha kell */
+/* HIBABIZTOS LOGÓ LIMIT:
+   - ha class hibás, akkor is limitáljuk a brand-col-ban lévő képet */
+.brand-col img{
+  height: 92px;
   width: auto;
+  max-width: 100%;
   object-fit: contain;
   background:#ffffff;
   border-radius: 14px;
@@ -73,7 +72,14 @@ body{
   display:block;
 }
 
-/* Közép oszlop */
+/* Ha nálad a class jó, ez is ráerősít (nem kötelező, de maradhat) */
+.logo-large{
+  height: 92px;
+  width: auto;
+  max-width: 100%;
+}
+
+/* KÖZÉP oszlop */
 .title-col{
   text-align:center;
   display:flex;
@@ -97,7 +103,7 @@ body{
   line-height: 1.15;
 }
 
-/* Jobb oszlop: felül legördülők, alul kereső */
+/* JOBB oszlop */
 .filters-col{
   display:flex;
   flex-direction:column;
@@ -143,18 +149,15 @@ body{
   box-shadow: 0 0 0 4px rgba(96,165,250,.14);
 }
 
-.control.inline{
-  min-width: 140px;
-}
+.control.inline{ min-width: 140px; }
 
-/* Kereső a jobb oszlop alján – legyen széles, de ne lógjon túl */
 .filters-bottom #q{
   width: 100%;
   max-width: 520px;
 }
 
 /* =========================
-   TARTALOM LISTA (kártyák)
+   TARTALOM (kártyák)
 ========================= */
 .content{
   margin-top:14px;
@@ -194,11 +197,7 @@ body{
   padding: 8px 10px;
 }
 
-.col-title{
-  font-size:13px;
-  color: #f3f4f6;
-  opacity:.95;
-}
+.col-title{ font-size:13px; color:#f3f4f6; opacity:.95; }
 
 .chips{
   display:flex;
@@ -210,7 +209,7 @@ body{
 .chip{
   font-weight:800;
   font-size:12px;
-  color: #c7d2fe;
+  color:#c7d2fe;
   background: linear-gradient(180deg, var(--chipbg), rgba(167,139,250,.10));
   border:1px solid var(--chipbd);
   border-radius:999px;
@@ -299,41 +298,16 @@ body{
 }
 
 /* =========================
-   MOBIL (egymás alá minden)
+   MOBIL – csak 700px alatt essen egymás alá
+   (Azért 700, mert 900-nál túl hamar esett szét)
 ========================= */
-@media (max-width: 900px){
-  .header-grid{
-    grid-template-columns: 1fr;
-    align-items: start;
-  }
+@media (max-width: 700px){
+  .header-grid{ grid-template-columns: 1fr; align-items: start; }
+  .brand-col{ justify-content:center; }
+  .filters-top, .filters-bottom{ justify-content:flex-start; }
 
-  .brand-col{
-    justify-content:center;
-  }
-
-  .logo-large{
-    height: 96px; /* mobilon is szép */
-  }
-
-  .filters-top, .filters-bottom{
-    justify-content:flex-start;
-  }
-
-  .row{
-    grid-template-columns: 1fr;
-  }
-
-  .col{
-    border-right:none;
-    border-bottom:1px solid var(--border);
-  }
-
-  .col:last-child{
-    border-bottom:none;
-  }
-
-  .mid-text, .desc, .media-box{
-    height:auto;
-    min-height:170px;
-  }
+  .row{ grid-template-columns: 1fr; }
+  .col{ border-right:none; border-bottom:1px solid var(--border); }
+  .col:last-child{ border-bottom:none; }
+  .mid-text, .desc, .media-box{ height:auto; min-height:170px; }
 }
