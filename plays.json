@@ -1,20 +1,92 @@
 [
   {
     "id": "01",
-    "name": "Fatek",
+    "name": "0 Bal",
     "defense": "6:0",
     "situation": "6:6",
     "phase": "Támadás",
-    "media": "assets/media/01_fatek.mp4",
-    "description": "Kulcspontok:\n- Kezdés: KB\n- Beálló 2-3 közé\n- Ha kilép a 3-as: visszajátszás"
+    "media": "assets/media/0 bal.mp4",
+    "description": "Fontos szempontok: \n- Jobb átlövő rátörjön a falra.\n- Bal átlövő lövő szándékkal menjen. \n- Beálló jó ütemű bemozgása a kilépő 3-as védő mögé.\n"
   },
   {
     "id": "02",
-    "name": "0 Bal alap",
+    "name": "0 Jobb",
     "defense": "6:0",
     "situation": "Emberelőny",
     "phase": "Támadás",
-    "media": "assets/media/02_0 bal_alap.mp4",
-    "description": ""
+    "media": "assets/media/0 jobb.mp4",
+    "description": "Fontos szempontok: \n- Bal átlövő rátörjön a falra.\n- Jobb átlövő lövő szándékkal menjen. \n- Beálló jó ütemű bemozgása a kilépő 3-as védő mögé.\n"
+  },
+  {
+    "id": "03",
+    "name": "0 Jobb_kereszt",
+    "defense": "6:0",
+    "situation": "6:6",
+    "phase": "Támadás",
+    "media": "assets/media/0 jobb_kereszt.mp4",
+    "description": "Fontos szempontok: \n- Bal átlövő rátörjön a falra.\n- Jobb átlövő lövő szándékkal menjen. \n- Beálló jó ütemű bemozgása a kilépő 3-as védő mögé.\n- A beálló tovább megy a 3-as védő külső oldalára.\n- Az átlövő abba érkezzen bele.\n"
+  },
+  {
+    "id": "04",
+    "name": "0 Bal_kereszt",
+    "defense": "6:0",
+    "situation": "6:6",
+    "phase": "Támadás",
+    "media": "assets/media/0 bal_kereszt.mp4",
+    "description": "Fontos szempontok: \n- Jobb átlövő rátörjön a falra.\n- Bal átlövő lövő szándékkal menjen. \n- Beálló jó ütemű bemozgása a kilépő 3-as védő mögé.\n- A beálló tovább megy a 3-as védő külső oldalára.\n- Az átlövő abba érkezzen bele.\n"
+  },
+  {
+    "id": "05",
+    "name": "Lehúzás bal -",
+    "defense": "6:0",
+    "situation": "6:6",
+    "phase": "Támadás",
+    "media": "assets/media/Lehúzás bal -.mp4",
+    "description": "Fontos szempontok:\n- Bal átlövő lehúzást követően álljon be 1-es védő belső oldalára.\n- Irányító teret nyitva jöjjön ki a bal átlövő felé, majd egyenesen törjön rá a 3-as védőre.\n- Beálló jó ütemű kimozgásával ( 1-2 közé ) egy időben jobb átlövő labda nélküli mozgása befelé ( 2-3 közé )."
+  },
+  {
+    "id": "06",
+    "name": "Lehúzás bal +",
+    "defense": "6:0",
+    "situation": "6:6",
+    "phase": "Támadás",
+    "media": "assets/media/Lehúzás bal +.mp4",
+    "description": "Fontos szempontok:\n- Bal átlövő lehúzást követően álljon be 1-es védő belső oldalára.\n- Irányító teret nyitva jöjjön ki a bal átlövő felé, majd egyenesen törjön rá a 3-as védőre.\n- Beálló jó ütemű bemozgása ( 2-3 közé ). \n- Jobb átlövő szélesen marad"
+  },
+  {
+    "id": "08",
+    "name": "Lehúzás jobb +",
+    "defense": "6:0",
+    "situation": "6:6",
+    "phase": "Támadás",
+    "media": "assets/media/Lehúzás jobb +.mp4",
+    "description": "Fontos szempontok:\n- Jobb átlövő lehúzást követően álljon be 1-es védő belső oldalára.\n- Irányító teret nyitva jöjjön ki a jobb átlövő felé, majd egyenesen törjön rá a 3-as védőre.\n- Beálló jó ütemű bemozgása ( 2-3 közé ). \n- Bal átlövő szélesen marad"
+  },
+  {
+    "id": "07",
+    "name": "Lehúzás jobb -",
+    "defense": "6:0",
+    "situation": "6:6",
+    "phase": "Támadás",
+    "media": "assets/media/Lehúzás jobb -.mp4",
+    "description": "Fontos szempontok:\n- Jobb átlövő lehúzást követően álljon be 1-es védő belső oldalára.\n- Irányító teret nyitva jöjjön ki a jobb átlövő felé, majd egyenesen törjön rá a 3-as védőre.\n- Beálló jó ütemű kimozgásával ( 1-2 közé ) egy időben bal átlövő labda nélküli mozgása befelé ( 2-3 közé )."
+  },
+  {
+    "id": "09",
+    "name": "Lehúzás bal 2-3 Zárás",
+    "defense": "6:0",
+    "situation": "6:6",
+    "phase": "Támadás",
+    "media": "assets/media/Lehúzás ( 2-3 zárás ).mp4",
+    "description": "Fontos szempontok:\n- Bal átlövő lehúzást követően álljon be 1-es védő belső oldalára.\n- Irányító teret nyitva jöjjön ki a bal átlövő felé, majd rátörés közben térnyerést követően zárásba vezetés a túloldali 3-as külső oldalára.\n- Beálló jó ütemű zárása."
+  },
+  {
+    "id": "10",
+    "name": "Lerohanás ( 7:6 )",
+    "defense": "6:0",
+    "situation": "Lerohanás",
+    "phase": "Lerohanás",
+    "media": "assets/media/7-6 lerohanás középkezdésből.mp4",
+    "description": "Fontos szempontok:\n- A cserevonalhoz közelebb elhelyezkedő beálló végzi el a középkezdést. \n- Másik beálló a középkezdést követően 2-3 közé megy.\n- Bal átlövő rátörés után passz irányítónak\n- Irányító jó döntés ( lövés, zárásba vezetés, átadás )"
   }
 ]
