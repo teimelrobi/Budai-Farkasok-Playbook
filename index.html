@@ -6,57 +6,46 @@
   <title>Playbook – Budai Farkasok FU18</title>
   <link rel="stylesheet" href="assets/style.css" />
 </head>
-
 <body>
   <div class="page">
+
 
     <header class="header">
       <div class="header-grid">
 
-        <!-- BAL OSZLOP: vissza + LOGÓ -->
+        <!-- BAL: LOGÓ -->
         <div class="brand-col">
-          <img class="logo-large" src="assets/logo.png" alt="Budai Farkasok" />
+          <img class="logo" src="assets/logo.png" alt="Budai Farkasok" />
         </div>
 
-        <!-- KÖZÉP OSZLOP: PLAYBOOK + csapat -->
+        <!-- KÖZÉP: CÍM -->
         <div class="title-col">
-          <div class="playbook-title">PLAYBOOK</div>
+          <div class="big-title">PLAYBOOK</div>
           <div class="team-title">Budai Farkasok FU18</div>
         </div>
 
-        <!-- JOBB OSZLOP: szűrők felül, kereső alul -->
+        <!-- JOBB: SZŰRŐK + KERESÉS -->
         <div class="filters-col">
           <div class="filters-top">
-            <label class="control inline">
+            <label class="control">
               <span class="control-label">Védekezés</span>
               <select id="fDefense">
                 <option value="">Mind</option>
               </select>
             </label>
 
-            <label class="control inline">
+            <label class="control">
               <span class="control-label">Szituáció</span>
               <select id="fSituation">
                 <option value="">Mind</option>
               </select>
             </label>
-
-            <!-- Ha már NEM használod a játékrészt, ezt a blokkot törölheted,
-                 de akkor az app.js-ben se hivatkozzon rá. -->
-            <label class="control inline">
-              <span class="control-label">Játékrész</span>
-              <select id="fPhase">
-                <option value="">Mind</option>
-              </select>
-            </label>
           </div>
 
-          <div class="filters-bottom">
-            <label class="control" style="width:100%">
-              <span class="control-label">Keresés</span>
-              <input id="q" type="search" placeholder="Név / védekezés / szituáció / leírás..." />
-            </label>
-          </div>
+          <label class="control search-control">
+            <span class="control-label">Keresés</span>
+            <input id="q" type="search" placeholder="Név / védekezés / szituáció / leírás..." />
+          </label>
         </div>
 
       </div>
@@ -74,7 +63,6 @@
 
   </div>
 
-  <!-- 1 sor sablon (a JS ebből renderel) -->
   <template id="rowTpl">
     <section class="row">
       <div class="col col-left">
@@ -82,7 +70,6 @@
           <div class="col-title name">Mozgás neve</div>
           <div class="chips"></div>
         </div>
-
         <div class="media-box">
           <video class="media" controls playsinline preload="metadata"></video>
           <img class="media-img" alt="" />
@@ -90,47 +77,17 @@
       </div>
 
       <div class="col col-mid">
-        <div class="col-head">
-          <div class="col-title">Védekezési forma</div>
-        </div>
+        <div class="col-head"><div class="col-title">Védekezési forma</div></div>
         <div class="mid-text defense"></div>
       </div>
 
       <div class="col col-right">
-        <div class="col-head">
-          <div class="col-title">Leírás</div>
-        </div>
+        <div class="col-head"><div class="col-title">Leírás</div></div>
         <div class="desc"></div>
       </div>
     </section>
   </template>
 
-  <!-- app -->
   <script src="assets/app.js"></script>
-
-  <!-- Mini stílus a vissza nyílhoz (ha a style.css-ben nincs) -->
-  <style>
-    .back-btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:40px;
-      height:40px;
-      border-radius:12px;
-      border:1px solid rgba(148,163,184,.18);
-      background: rgba(2,6,23,.45);
-      color:#e5e7eb;
-      text-decoration:none;
-      font-size:22px;
-      font-weight:900;
-      margin-right:10px;
-      cursor:pointer;
-      user-select:none;
-    }
-    .back-btn:hover{
-      border-color: rgba(96,165,250,.55);
-      background: rgba(96,165,250,.10);
-    }
-  </style>
 </body>
 </html>
