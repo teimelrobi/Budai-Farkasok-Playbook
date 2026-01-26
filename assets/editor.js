@@ -1,194 +1,249 @@
-const STORAGE_KEY = 'playbook_editor_v1';
+const DEFENSES = ["", "6:0", "5:1"]; // "" = Mind / üres
+const SITUATIONS = [
+  "",
+  "Támadás",
+  "Védekezés",
+  "Lerohanás",
+  "Visszarendeződés",
+  "Létszámfölény",
+  "Létszámhátrány",
+];
 
-const DEFENSES = ['', '6:0', '5:1'];
-const SITUATIONS = ['', '6:6', 'Emberelőny', 'Emberhátrány', 'Lerohanás', '7:6 játék'];
-const PHASES = ['', 'Támadás', 'Védekezés', 'Lerohanás'];
+// Gyakori elírások automatikus javítása
+const SITUATION_FIX = {
+  "lerihanás": "Lerohanás",
+  "lerihanas": "Lerohanás",
+  "lerohanás": "Lerohanás",
+  "lerohanas": "Lerohanás",
+};
 
-function $(id){ return document.getElementById(id); }
-
-function safeJsonParse(txt){
-  try{ return JSON.parse(txt); }catch(e){ return null; }
+function normStr(s){
+  return (s ?? "").toString().trim();
 }
 
-function download(filename, text){
-  const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url), 500);
+function normalizeSituation(s){
+  const t = normStr(s);
+  if(!t) return "";
+  const key = t.toLowerCase().replace(/\s+/g," ");
+  if(SITUATION_FIX[key]) return SITUATION_FIX[key];
+  // "fuzzy" fix: nehogy elütés maradjon (pl. Lerihanás)
+  if(key.includes('leriha') || key.includes('lariha') || key.includes('lerih')){
+    return "Lerohanás";
+  }
+  const hit = SITUATIONS.find(v => v && v.toLowerCase() === key);
+  return hit || t;
 }
 
-async function loadFromRepo(){
-  const res = await fetch('assets/data/plays.json', { cache: 'no-store' });
-  return await res.json();
+function normalizeDefense(s){
+  const t = normStr(s);
+  if(!t) return "";
+  const key = t.replace(/[\.-]/g,":").replace(/\s+/g,"");
+  if(key === "6:0") return "6:0";
+  if(key === "5:1") return "5:1";
+  return t;
 }
 
-function normalize(plays){
-  if(!Array.isArray(plays)) return [];
-  return plays.map((p, idx)=>({
-    id: (p.id ?? String(idx+1).padStart(2,'0')),
-    name: p.name ?? '',
-    defense: p.defense ?? '',
-    situation: p.situation ?? '',
-    phase: p.phase ?? '',
-    media: p.media ?? 'assets/media/',
-    description: p.description ?? ''
-  }));
+function normalizePlay(p){
+  return {
+    id: normStr(p.id) || crypto.randomUUID().slice(0,8),
+    name: normStr(p.name),
+    defense: normalizeDefense(p.defense),
+    situation: normalizeSituation(p.situation),
+    media: normStr(p.media),
+    description: (p.description ?? "").toString(),
+  };
 }
 
-function saveLocal(plays){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(plays));
+const LS_KEY = 'handball_playbook_editor_v1';
+
+const els = {
+  add: document.getElementById('add'),
+  exp: document.getElementById('export'),
+  imp: document.getElementById('import'),
+  reset: document.getElementById('reset'),
+  tbody: document.getElementById('tbody'),
+};
+
+function loadFromStorage(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return null;
+    const arr = JSON.parse(raw);
+    if(!Array.isArray(arr)) return null;
+    return arr.map(normalizePlay);
+  }catch(e){
+    return null;
+  }
 }
 
-function loadLocal(){
-  const txt = localStorage.getItem(STORAGE_KEY);
-  if(!txt) return null;
-  return safeJsonParse(txt);
+function saveToStorage(plays){
+  localStorage.setItem(LS_KEY, JSON.stringify(plays, null, 2));
 }
 
-function optionList(values, current){
-  return values.map(v=>`<option value="${escapeHtml(v)}"${v===current?' selected':''}>${escapeHtml(v || '—')}</option>`).join('');
+let plays = loadFromStorage() || [];
+
+function optionList(values, selected){
+  return values.map(v => {
+    const label = v === "" ? "" : v;
+    const sel = (v === selected) ? ' selected' : '';
+    return `<option value="${escapeHtml(v)}"${sel}>${escapeHtml(label || '—')}</option>`;
+  }).join('');
 }
 
 function escapeHtml(s){
-  return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+  return (s ?? '').toString()
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
 }
 
-function rowHtml(p, i){
-  return `
-  <tr data-i="${i}">
-    <td><input class="input" data-k="id" value="${escapeHtml(p.id)}" /></td>
-    <td><input class="input" data-k="name" value="${escapeHtml(p.name)}" placeholder="pl. Fatek" /></td>
-    <td><select class="select" data-k="defense">${optionList(DEFENSES, p.defense)}</select></td>
-    <td><select class="select" data-k="situation">${optionList(SITUATIONS, p.situation)}</select></td>
-    <td><select class="select" data-k="phase">${optionList(PHASES, p.phase)}</select></td>
-    <td>
-      <div style="display:flex; gap:6px; align-items:center">
-        <input class="input" data-k="media" value="${escapeHtml(p.media)}" placeholder="assets/media/01_fatek.mp4" />
-        <button class="smallbtn" type="button" data-act="prefix">+assets</button>
-      </div>
-    </td>
-    <td><textarea class="textarea" data-k="description" placeholder="Kulcspontok...">${escapeHtml(p.description)}</textarea></td>
-    <td>
-      <div class="actions">
-        <button class="smallbtn dup" type="button" data-act="dup">Duplikál</button>
-        <button class="smallbtn danger" type="button" data-act="del">Töröl</button>
-      </div>
-    </td>
-  </tr>`;
-}
+function render(){
+  els.tbody.innerHTML = '';
 
-function render(plays){
-  $('tbody').innerHTML = plays.map(rowHtml).join('');
-}
+  plays.forEach((p, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input class="in small" data-k="id" data-i="${idx}" value="${escapeHtml(p.id)}" /></td>
+      <td><input class="in" data-k="name" data-i="${idx}" value="${escapeHtml(p.name)}" placeholder="Pl. 0 Bal" /></td>
+      <td>
+        <select class="in" data-k="defense" data-i="${idx}">
+          ${optionList(DEFENSES, p.defense)}
+        </select>
+      </td>
+      <td>
+        <select class="in" data-k="situation" data-i="${idx}">
+          ${optionList(SITUATIONS, p.situation)}
+        </select>
+      </td>
+      <td>
+        <div class="media-cell">
+          <input class="in" data-k="media" data-i="${idx}" value="${escapeHtml(p.media)}" placeholder="assets/media/01_fatek.mp4" />
+          <button class="btn mini ghost" data-act="prefix" data-i="${idx}">+assets</button>
+        </div>
+      </td>
+      <td><textarea class="in ta" data-k="description" data-i="${idx}" rows="3" placeholder="Kulcspontok...">${escapeHtml(p.description)}</textarea></td>
+      <td>
+        <div class="row-actions">
+          <button class="btn mini" data-act="dup" data-i="${idx}">Duplikál</button>
+          <button class="btn mini danger" data-act="del" data-i="${idx}">Töröl</button>
+        </div>
+      </td>
+    `;
 
-function readTable(){
-  return Array.from(document.querySelectorAll('#tbody tr')).map(tr=>{
-    const get = (k)=> (tr.querySelector(`[data-k="${k}"]`)?.value ?? '');
-    return {
-      id: get('id').trim(),
-      name: get('name').trim(),
-      defense: get('defense').trim(),
-      situation: get('situation').trim(),
-      phase: get('phase').trim(),
-      media: get('media').trim(),
-      description: get('description')
-    };
+    els.tbody.appendChild(tr);
   });
 }
 
-function addOne(plays){
-  const next = String(plays.length + 1).padStart(2,'0');
-  plays.push({ id: next, name: '', defense: '', situation: '', phase: '', media: `assets/media/${next}_`, description: '' });
-  return plays;
+function addOne(){
+  const base = {
+    id: crypto.randomUUID().slice(0,8),
+    name: '',
+    defense: '',
+    situation: '',
+    media: '',
+    description: '',
+  };
+  plays.unshift(base);
+  saveToStorage(plays);
+  render();
 }
 
-function duplicateAt(plays, idx){
-  const p = plays[idx];
-  const next = String(plays.length + 1).padStart(2,'0');
-  plays.splice(idx+1, 0, { ...p, id: next, name: (p.name ? p.name + ' (másolat)' : '' ) });
-  return plays;
+function duplicateAt(i){
+  const p = plays[i];
+  const copy = { ...p, id: crypto.randomUUID().slice(0,8) };
+  plays.splice(i+1, 0, copy);
+  saveToStorage(plays);
+  render();
 }
 
-function deleteAt(plays, idx){
-  plays.splice(idx,1);
-  return plays;
+function deleteAt(i){
+  plays.splice(i, 1);
+  saveToStorage(plays);
+  render();
 }
 
-function handleTableClick(e){
-  const btn = e.target.closest('button[data-act]');
-  if(!btn) return;
-  const tr = e.target.closest('tr');
-  const idx = Number(tr.getAttribute('data-i'));
-  let plays = readTable();
-  const act = btn.getAttribute('data-act');
+function updateField(i, k, v){
+  const p = plays[i];
+  if(!p) return;
+  if(k === 'situation') v = normalizeSituation(v);
+  if(k === 'defense') v = normalizeDefense(v);
+  p[k] = v;
+  saveToStorage(plays);
+}
 
-  if(act === 'del') plays = deleteAt(plays, idx);
-  if(act === 'dup') plays = duplicateAt(plays, idx);
-  if(act === 'prefix'){
-    const input = tr.querySelector('[data-k="media"]');
-    const v = input.value.trim();
-    if(v && !v.startsWith('assets/')) input.value = 'assets/media/' + v;
-    else if(!v) input.value = 'assets/media/';
-    plays = readTable();
+function exportJson(){
+  // export előtt normalizálunk, hogy ne menjen ki elírás
+  const out = plays.map(normalizePlay);
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'plays.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importJson(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const arr = JSON.parse(reader.result);
+      if(!Array.isArray(arr)) throw new Error('Nem tömb a JSON');
+      plays = arr.map(normalizePlay);
+      saveToStorage(plays);
+      render();
+      alert('Import kész. (Mentve LocalStorage)');
+    }catch(e){
+      alert('Import hiba: ' + e.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+els.add.addEventListener('click', addOne);
+els.exp.addEventListener('click', exportJson);
+els.reset.addEventListener('click', () => {
+  if(confirm('Biztosan törlöd a szerkesztőben mentett adatokat?')){
+    localStorage.removeItem(LS_KEY);
+    plays = [];
+    render();
   }
-
-  saveLocal(plays);
-  render(plays);
-}
-
-function autoSave(){
-  saveLocal(readTable());
-}
-
-(async function main(){
-  let plays = loadLocal();
-  if(!plays){
-    plays = normalize(await loadFromRepo());
-  }else{
-    plays = normalize(plays);
-  }
-  render(plays);
-
-  $('add').addEventListener('click', ()=>{
-    let current = readTable();
-    current = addOne(current);
-    saveLocal(current);
-    render(current);
-  });
-
-  $('export').addEventListener('click', ()=>{
-    const cleaned = normalize(readTable());
-    download('plays.json', JSON.stringify(cleaned, null, 2));
-  });
-
-  $('import').addEventListener('change', async (e)=>{
-    const f = e.target.files && e.target.files[0];
-    if(!f) return;
-    const txt = await f.text();
-    const parsed = safeJsonParse(txt);
-    if(!parsed){ alert('Nem tudtam beolvasni a JSON-t.'); return; }
-    const cleaned = normalize(parsed);
-    saveLocal(cleaned);
-    render(cleaned);
-    e.target.value = '';
-  });
-
-  $('reset').addEventListener('click', async ()=>{
-    if(!confirm('Visszaállítsam a repo plays.json alapján? A helyi változtatások elvésznek.')) return;
-    const repoPlays = normalize(await loadFromRepo());
-    saveLocal(repoPlays);
-    render(repoPlays);
-  });
-
-  $('tbody').addEventListener('click', handleTableClick);
-  $('tbody').addEventListener('input', autoSave);
-
-})().catch(err=>{
-  console.error(err);
-  alert('Hiba a szerkesztő betöltésénél.');
 });
+els.imp.addEventListener('change', (e) => {
+  const f = e.target.files?.[0];
+  if(f) importJson(f);
+  e.target.value = '';
+});
+
+els.tbody.addEventListener('input', (e) => {
+  const el = e.target;
+  const i = Number(el.dataset.i);
+  const k = el.dataset.k;
+  if(!k) return;
+  updateField(i, k, el.value);
+});
+
+els.tbody.addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const act = btn.dataset.act;
+  const i = Number(btn.dataset.i);
+
+  if(act === 'dup') return duplicateAt(i);
+  if(act === 'del') return deleteAt(i);
+  if(act === 'prefix'){
+    const p = plays[i];
+    if(!p) return;
+    if(p.media && !p.media.startsWith('assets/')){
+      p.media = 'assets/' + p.media.replace(/^\/+/, '');
+      saveToStorage(plays);
+      render();
+    }
+  }
+});
+
+// első render + auto-normalizálás a már mentett adaton
+plays = plays.map(normalizePlay);
+saveToStorage(plays);
+render();

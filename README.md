@@ -1,7 +1,9 @@
-PLAYBOOK – INGYENES WEBOLDAL + SZERKESZTŐ
+PLAYBOOK – INGYENES WEBOLDAL + SZERKESZTŐ (v4)
 
-• Néző oldal: index.html
-• Szerkesztő: editor.html (Export -> plays.json)
+Változás:
+- Szituáció: Támadás, Védekezés, Lerohanás, Visszarendeződés, Létszámfölény, Létszámhátrány
+- Védekezés: 6:0, 5:1
+- Játékrész (phase) NINCS
 
 Workflow:
 1) Nyisd meg: editor.html
@@ -12,7 +14,3 @@ Workflow:
 Media:
 - Tedd a videókat/GIF-eket: assets/media/
 - plays.json-ben a media: assets/media/filename.mp4
-
-Megjegyzés:
-- A szerkesztő automatikusan ment a böngésződben.
-- Ha gépet váltasz, exportáld a JSON-t.
