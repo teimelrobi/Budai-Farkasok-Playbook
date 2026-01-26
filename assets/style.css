@@ -60,7 +60,7 @@ body{
 /* HIBABIZTOS LOGÓ LIMIT:
    - ha class hibás, akkor is limitáljuk a brand-col-ban lévő képet */
 .brand-col img{
-  height: 92px;
+  height: 140px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
