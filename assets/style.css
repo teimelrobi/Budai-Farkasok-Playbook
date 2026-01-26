@@ -251,3 +251,99 @@ body{
   border:1px solid rgba(148,163,184,.25);
   box-shadow: 0 8px 20px rgba(0,0,0,.25);
 }
+/* HEADER 3 OSZLOPOS (ugyanaz, mint lent a row) */
+.header{
+  border:1px solid var(--border);
+  background: linear-gradient(180deg, rgba(15,23,42,.95), rgba(15,23,42,.75));
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.header-grid{
+  display:grid;
+  grid-template-columns: 1.55fr 0.8fr 1.55fr; /* BAL / KÖZÉP / JOBB = mint a sorok */
+  gap:14px;
+  align-items:center;
+}
+
+/* BAL: logó pont a videó oszlop szélességében */
+.brand-col{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  height: 100%;
+}
+
+.logo-large{
+  width:100%;              /* kitölti a bal oszlopot */
+  max-height: 110px;       /* ne legyen túl magas */
+  object-fit: contain;
+  background:#fff;
+  border-radius: 14px;
+  padding: 10px;
+  border:1px solid rgba(148,163,184,.25);
+  box-shadow: 0 10px 26px rgba(0,0,0,.35);
+}
+
+/* KÖZÉP: PLAYBOOK + csapatnév középen */
+.title-col{
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+
+.playbook-title{
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.team-title{
+  font-size: 18px;
+  font-weight: 800;
+  opacity: .95;
+}
+
+/* JOBB: felül szűrők, alul kereső */
+.filters-col{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.filters-top{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+
+.filters-bottom{
+  display:flex;
+  justify-content:flex-end;
+}
+
+.control.inline{
+  min-width: 140px;
+}
+
+.filters-bottom #q{
+  width: 100%;
+  max-width: 520px;  /* szépen beáll a jobb oszlopban */
+}
+
+/* MOBILON: egymás alá */
+@media (max-width: 900px){
+  .header-grid{
+    grid-template-columns: 1fr;
+  }
+  .brand-col{ justify-content:center; }
+  .filters-top, .filters-bottom{ justify-content:flex-start; }
+  .logo-large{ max-height: 100px; }
+}
+
