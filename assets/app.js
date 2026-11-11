@@ -7,6 +7,21 @@ function videoBlock(title,src){
  const label=document.createElement('h4');label.textContent=title;block.append(label);
  const wrap=document.createElement('div');wrap.className='video-wrap';
  if(src){
+   const driveMatch=src.match(/^https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/(?:view|preview)(?:[?#].*)?$/);
+   if(driveMatch){
+     const iframe=document.createElement('iframe');
+     iframe.src='https://drive.google.com/file/d/'+driveMatch[1]+'/preview';
+     iframe.title=title;
+     iframe.allow='autoplay; fullscreen';
+     iframe.allowFullscreen=true;
+     iframe.loading='lazy';
+     iframe.referrerPolicy='strict-origin-when-cross-origin';
+     wrap.append(iframe);
+     const link=document.createElement('a');
+     link.href=src;link.target='_blank';link.rel='noopener noreferrer';
+     link.textContent='Megnyitás a Google Drive-ban';
+     block.append(wrap,link);return block;
+   }
    const video=document.createElement('video');video.controls=true;video.playsInline=true;video.preload='metadata';video.src=src;wrap.append(video);
  }else{const placeholder=document.createElement('div');placeholder.className='placeholder';placeholder.textContent='Videó hamarosan';wrap.append(placeholder);}
  block.append(wrap);return block;
