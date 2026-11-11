@@ -1,93 +1,11 @@
 <!doctype html>
-<html lang="hu">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Playbook – Budai Farkasok</title>
-  <link rel="stylesheet" href="assets/style.css" />
-</head>
-<body>
-  <div class="page">
-
-
-    <header class="header">
-      <div class="header-grid">
-
-        <!-- BAL: LOGÓ -->
-        <div class="brand-col">
-          <img class="logo" src="assets/logo.png" alt="Budai Farkasok" />
-        </div>
-
-        <!-- KÖZÉP: CÍM -->
-        <div class="title-col">
-          <div class="big-title">PLAYBOOK</div>
-          <div class="team-title">Budai Farkasok</div>
-        </div>
-
-        <!-- JOBB: SZŰRŐK + KERESÉS -->
-        <div class="filters-col">
-          <div class="filters-top">
-            <label class="control">
-              <span class="control-label">Védekezés</span>
-              <select id="fDefense">
-                <option value="">Mind</option>
-              </select>
-            </label>
-
-            <label class="control">
-              <span class="control-label">Szituáció</span>
-              <select id="fSituation">
-                <option value="">Mind</option>
-              </select>
-            </label>
-          </div>
-
-          <label class="control search-control">
-            <span class="control-label">Keresés</span>
-            <input id="q" type="search" placeholder="Név / védekezés / szituáció / leírás..." />
-          </label>
-        </div>
-
-      </div>
-    </header>
-
-    <main class="content">
-      <div id="list" class="list"></div>
-      <div id="empty" class="empty" hidden>Nincs találat.</div>
-    </main>
-
-    <footer class="footer">
-      <span>Ingyenes statikus oldal · Adat: <code>assets/data/plays.json</code> · </span>
-      <a class="footer-link" href="editor.html">Szerkesztő megnyitása</a>
-    </footer>
-
-  </div>
-
-  <template id="rowTpl">
-    <section class="row">
-      <div class="col col-left">
-        <div class="col-head">
-          <div class="col-title name">Mozgás neve</div>
-          <div class="chips"></div>
-        </div>
-        <div class="media-box">
-          <video class="media" controls playsinline preload="metadata"></video>
-          <img class="media-img" alt="" />
-        </div>
-      </div>
-
-      <div class="col col-mid">
-        <div class="col-head"><div class="col-title">Védekezési forma</div></div>
-        <div class="mid-text defense"></div>
-      </div>
-
-      <div class="col col-right">
-        <div class="col-head"><div class="col-title">Leírás</div></div>
-        <div class="desc"></div>
-      </div>
-    </section>
-  </template>
-
-  <script src="assets/app.js"></script>
-</body>
-</html>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Budai Farkasok | Playbook</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><div class="page">
+<header class="header"><img class="logo" src="assets/logo.png" alt="Budai Farkasok logó"><div class="brand"><span class="eyebrow">BUDAI FARKASOK · FELNŐTT CSAPAT</span><h1>PLAYBOOK</h1><p>A csapat taktikai mozgásai egy helyen.</p></div></header>
+<section class="toolbar"><div class="heading"><h2>Mozgástár</h2><span id="count">0 mozgás</span></div>
+<div class="controls"><label><span>Kategória</span><select id="category"><option value="">Összes kategória</option></select></label>
+<label><span>Keresés</span><input id="query" type="search" placeholder="Mozgás neve, címke, leírás…"></label></div></section>
+<main><div id="list" class="list"></div><div id="empty" class="empty" hidden><div class="empty-icon">▤</div><h3>Még nincs feltöltött mozgás</h3><p>Hamarosan itt jelennek meg a felnőtt csapat taktikai anyagai: valódi videó, animált taktikai videó és leírás.</p></div><div id="error" class="empty" hidden>Nem sikerült betölteni a mozgásokat. Ellenőrizd az adatfájlt.</div></main>
+<footer><span>Budai Farkasok Playbook</span><a href="editor.html">Mozgások szerkesztése</a></footer>
+</div><script src="assets/app.js" defer></script></body></html>
