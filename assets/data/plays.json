@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "id": "csurgo-bal",
+    "name": "Csurgó bal",
+    "category": "Felállt fal elleni támadás",
+    "folder": "Csurgó",
+    "defense": "",
+    "tags": [],
+    "video": "",
+    "tacticalVideo": "",
+    "description": ""
+  }
+]
