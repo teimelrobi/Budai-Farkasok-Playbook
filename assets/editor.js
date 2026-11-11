@@ -1,306 +1,34 @@
-/* Playbook Editor – robust, ID-aligned with editor.html */
-
-const DEFAULT_SITUATIONS = [
-  "Támadás",
-  "Védekezés",
-  "Lerohanás",
-  "Visszarendeződés",
-  "Létszámfölény",
-  "Létszámhátrány"
-];
-
-const DEFAULT_DEFENSES = [
-  "",     // üres = nincs / mind
-  "6:0",
-  "5:1"
-];
-
-const STORE_KEY = "playbook_plays";
-
-function byId(id) { return document.getElementById(id); }
-
-function safeParseJson(str, fallback) {
-  try { return JSON.parse(str); } catch { return fallback; }
+const KEY='bf_adult_playbook_v2';const CATS=['Felállt fal elleni támadás','Lerohanás','Visszarendeződés','Védekezés','7:6','Emberelőny','Emberhátrány','Speciális'];
+let items=[];const el=id=>document.getElementById(id);
+const normalize=p=>({id:String(p.id||('m'+Date.now()+Math.random().toString(36).slice(2,6))),name:String(p.name||''),category:String(p.category||''),tags:Array.isArray(p.tags)?p.tags.map(String):[],video:String(p.video||p.media||''),tacticalVideo:String(p.tacticalVideo||''),description:String(p.description||'')});
+function save(){localStorage.setItem(KEY,JSON.stringify(items));el('status').textContent=items.length+' mozgás a szerkesztőben · helyi mentés'}
+function input(label,value,cb,kind='text'){
+ const wrap=document.createElement('label');wrap.textContent=label;let control;
+ if(kind==='textarea'){control=document.createElement('textarea');control.value=value}
+ else if(kind==='category'){control=document.createElement('select');['',...CATS,...(value&&!CATS.includes(value)?[value]:[])].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v||'Válassz kategóriát';control.append(o)});control.value=value}
+ else{control=document.createElement('input');control.type='text';control.value=value}
+ control.addEventListener(kind==='category'?'change':'input',()=>cb(control.value));wrap.append(control);return wrap;
 }
-
-function loadFromStorage() {
-  const raw = localStorage.getItem(STORE_KEY);
-  if (!raw) return null;
-  const data = safeParseJson(raw, null);
-  if (!data || !Array.isArray(data)) return null;
-  return data;
+function render(){
+ const root=el('items');root.replaceChildren();
+ if(!items.length){const p=document.createElement('p');p.className='hint';p.textContent='Még nincs mozgás. Kattints az „Új mozgás” gombra.';root.append(p)}
+ items.forEach((p,i)=>{
+ const card=document.createElement('section');card.className='edit-card';
+ const grid=document.createElement('div');grid.className='formgrid';
+ const field=(label,value,key,kind='text')=>grid.append(input(label,value,v=>{p[key]=v;save()},kind));
+ field('Mozgás neve',p.name,'name');field('Kategória',p.category,'category','category');
+ const tags=input('Címkék (vesszővel elválasztva)',p.tags.join(', '),v=>{p.tags=v.split(',').map(s=>s.trim()).filter(Boolean);save()});tags.classList.add('wide');grid.append(tags);
+ field('Valódi videó URL / elérési út',p.video,'video');field('Animált taktikai videó URL / elérési út',p.tacticalVideo,'tacticalVideo');
+ const desc=input('Edzői leírás',p.description,v=>{p.description=v;save()},'textarea');desc.classList.add('wide');grid.append(desc);card.append(grid);
+ const actions=document.createElement('div');actions.className='actions';actions.style.marginTop='14px';
+ const dup=document.createElement('button');dup.className='btn';dup.textContent='Másolat';dup.onclick=()=>{items.splice(i+1,0,{...p,id:'m'+Date.now(),tags:[...p.tags]});save();render()};
+ const del=document.createElement('button');del.className='btn danger';del.textContent='Törlés';del.onclick=()=>{if(confirm('Biztosan törlöd ezt a mozgást?')){items.splice(i,1);save();render()}};actions.append(dup,del);card.append(actions);root.append(card);
+ });save();
 }
-
-function saveToStorage(plays) {
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(plays));
-  } catch (e) {
-    console.error("LocalStorage save error:", e);
-    alert("Nem sikerült menteni (LocalStorage hiba).");
-  }
-}
-
-function clearStorage() {
-  localStorage.removeItem(STORE_KEY);
-}
-
-async function loadFromSiteJson() {
-  // a playbook adatfájl helye
-  const res = await fetch("assets/data/plays.json", { cache: "no-store" });
-  if (!res.ok) throw new Error("Nem találom: assets/data/plays.json");
-  const data = await res.json();
-  if (!Array.isArray(data)) throw new Error("plays.json nem tömb (Array).");
-  return data;
-}
-
-function normalizePlay(p, idx) {
-  const id = (p && p.id != null && String(p.id).trim() !== "") ? String(p.id) : String(idx + 1);
-  return {
-    id,
-    name: (p && p.name) ? String(p.name) : "",
-    defense: (p && p.defense) ? String(p.defense) : "",
-    situation: (p && p.situation) ? String(p.situation) : "",
-    media: (p && p.media) ? String(p.media) : "",
-    description: (p && p.description) ? String(p.description) : ""
-  };
-}
-
-function makeEl(tag, cls, html) {
-  const el = document.createElement(tag);
-  if (cls) el.className = cls;
-  if (html != null) el.innerHTML = html;
-  return el;
-}
-
-function makeSelect(options, value) {
-  const sel = document.createElement("select");
-  sel.className = "input";
-  options.forEach(opt => {
-    const o = document.createElement("option");
-    o.value = opt;
-    o.textContent = opt === "" ? "—" : opt;
-    sel.appendChild(o);
-  });
-  sel.value = options.includes(value) ? value : (options[0] ?? "");
-  return sel;
-}
-
-function makeInput(value, placeholder = "") {
-  const inp = document.createElement("input");
-  inp.className = "input";
-  inp.type = "text";
-  inp.value = value ?? "";
-  inp.placeholder = placeholder;
-  return inp;
-}
-
-function makeTextarea(value, placeholder = "") {
-  const ta = document.createElement("textarea");
-  ta.className = "input textarea";
-  ta.rows = 4;
-  ta.value = value ?? "";
-  ta.placeholder = placeholder;
-  return ta;
-}
-
-let plays = [];
-let hasBootstrapped = false;
-
-function render() {
-  const tbody = byId("tbody");
-  tbody.innerHTML = "";
-
-  plays.forEach((p, i) => {
-    const tr = document.createElement("tr");
-
-    // ID
-    const tdId = document.createElement("td");
-    const idInput = makeInput(p.id, "pl. 01");
-    idInput.style.width = "90px";
-    idInput.addEventListener("input", () => {
-      plays[i].id = idInput.value.trim();
-      saveToStorage(plays);
-    });
-    tdId.appendChild(idInput);
-    tr.appendChild(tdId);
-
-    // Név
-    const tdName = document.createElement("td");
-    const nameInput = makeInput(p.name, "Mozgás neve");
-    nameInput.addEventListener("input", () => {
-      plays[i].name = nameInput.value;
-      saveToStorage(plays);
-    });
-    tdName.appendChild(nameInput);
-    tr.appendChild(tdName);
-
-    // Véd.
-    const tdDef = document.createElement("td");
-    const defSel = makeSelect(DEFAULT_DEFENSES, p.defense);
-    defSel.addEventListener("change", () => {
-      plays[i].defense = defSel.value;
-      saveToStorage(plays);
-    });
-    tdDef.appendChild(defSel);
-    tr.appendChild(tdDef);
-
-    // Szituáció
-    const tdSit = document.createElement("td");
-    const sitSel = makeSelect(["", ...DEFAULT_SITUATIONS], p.situation);
-    sitSel.addEventListener("change", () => {
-      plays[i].situation = sitSel.value;
-      saveToStorage(plays);
-    });
-    tdSit.appendChild(sitSel);
-    tr.appendChild(tdSit);
-
-    // Media
-    const tdMedia = document.createElement("td");
-    const mediaInput = makeInput(p.media, "assets/media/01_video.mp4");
-    mediaInput.addEventListener("input", () => {
-      plays[i].media = mediaInput.value;
-      saveToStorage(plays);
-    });
-    tdMedia.appendChild(mediaInput);
-    tr.appendChild(tdMedia);
-
-    // Leírás
-    const tdDesc = document.createElement("td");
-    const descTa = makeTextarea(p.description, "Kulcspontok…");
-    descTa.addEventListener("input", () => {
-      plays[i].description = descTa.value;
-      saveToStorage(plays);
-    });
-    tdDesc.appendChild(descTa);
-    tr.appendChild(tdDesc);
-
-    // Művelet
-    const tdOps = document.createElement("td");
-
-    const btnDup = makeEl("button", "btn mini", "Duplikál");
-    btnDup.addEventListener("click", () => {
-      const copy = { ...plays[i] };
-      // új ID-t ajánlunk (ne ütközzön)
-      copy.id = (copy.id ? (copy.id + "_copy") : String(Date.now()));
-      plays.splice(i + 1, 0, copy);
-      saveToStorage(plays);
-      render();
-    });
-
-    const btnDel = makeEl("button", "btn mini danger", "Töröl");
-    btnDel.addEventListener("click", () => {
-      if (!confirm("Biztos törlöd ezt a figurát?")) return;
-      plays.splice(i, 1);
-      saveToStorage(plays);
-      render();
-    });
-
-    tdOps.appendChild(btnDup);
-    tdOps.appendChild(document.createTextNode(" "));
-    tdOps.appendChild(btnDel);
-
-    tr.appendChild(tdOps);
-
-    tbody.appendChild(tr);
-  });
-}
-
-async function bootstrap() {
-  // 1) próbáljuk LocalStorage-ból
-  const fromStore = loadFromStorage();
-  if (fromStore) {
-    plays = fromStore.map(normalizePlay);
-    hasBootstrapped = true;
-    render();
-    return;
-  }
-
-  // 2) ha nincs, akkor a site plays.json-ból
-  try {
-    const fromFile = await loadFromSiteJson();
-    plays = fromFile.map(normalizePlay);
-    saveToStorage(plays);
-    hasBootstrapped = true;
-    render();
-  } catch (e) {
-    console.warn(e);
-    plays = [];
-    saveToStorage(plays);
-    hasBootstrapped = true;
-    render();
-  }
-}
-
-function exportJson() {
-  const clean = plays.map((p, idx) => normalizePlay(p, idx));
-  const blob = new Blob([JSON.stringify(clean, null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "plays.json";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(a.href);
-}
-
-function importJson(file) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    const data = safeParseJson(reader.result, null);
-    if (!Array.isArray(data)) {
-      alert("Hibás JSON: nem tömb (Array).");
-      return;
-    }
-    plays = data.map(normalizePlay);
-    saveToStorage(plays);
-    render();
-    alert("Import kész.");
-  };
-  reader.readAsText(file);
-}
-
-function addNewPlay() {
-  const nextId = String(plays.length + 1);
-  plays.unshift({
-    id: nextId,
-    name: "",
-    defense: "",
-    situation: "",
-    media: "",
-    description: ""
-  });
-  saveToStorage(plays);
-  render();
-  // fókusz az első sor név mezőre
-  setTimeout(() => {
-    const firstNameInput = document.querySelector("#tbody tr:first-child td:nth-child(2) input");
-    if (firstNameInput) firstNameInput.focus();
-  }, 50);
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
-  // Gombok (ID-k a editor.html alapján!)
-  const btnAdd = byId("add");
-  const btnExport = byId("export");
-  const fileImport = byId("import");
-  const btnReset = byId("reset");
-
-  btnAdd.addEventListener("click", () => addNewPlay());
-  btnExport.addEventListener("click", () => exportJson());
-
-  fileImport.addEventListener("change", (e) => {
-    const f = e.target.files && e.target.files[0];
-    if (f) importJson(f);
-    e.target.value = ""; // reset
-  });
-
-  btnReset.addEventListener("click", async () => {
-    if (!confirm("Visszaállítod a szerkesztőt az oldalon lévő plays.json alapján?")) return;
-    clearStorage();
-    plays = [];
-    render();
-    await bootstrap();
-  });
-
-  await bootstrap();
-});
+async function loadPublished(){const r=await fetch('assets/data/plays.json',{cache:'no-store'});if(!r.ok)throw Error('Adatfájl nem elérhető');const data=await r.json();if(!Array.isArray(data))throw Error('Hibás formátum');return data.map(normalize)}
+function exportJson(){const blob=new Blob([JSON.stringify(items,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='plays.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+el('add').onclick=()=>{items.unshift(normalize({name:'',category:''}));render()};
+el('export').onclick=exportJson;
+el('import').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data))throw Error('A JSON nem lista');if(!confirm('A jelenlegi helyi listát felülírod az importált adatokkal?'))return;items=data.map(normalize);render()}catch(err){alert('Import hiba: '+err.message)}finally{e.target.value=''}};
+el('reset').onclick=async()=>{if(!confirm('Visszatöltöd a weboldalon jelenleg publikált adatokat? A helyi módosítások elvesznek.'))return;try{items=await loadPublished();render()}catch(e){alert(e.message)}};
+(async()=>{try{const raw=localStorage.getItem(KEY);items=raw?JSON.parse(raw).map(normalize):await loadPublished();render()}catch(e){el('status').textContent='Hiba a betöltésnél: '+e.message}})();
